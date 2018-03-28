@@ -1,7 +1,7 @@
 package labs.a.s.wizardguy;
-
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.webkit.WebSettings;
@@ -14,22 +14,38 @@ public class MainActivity extends AppCompatActivity {
     WebView webView;
     ProgressBar progressBar;
     String url="http://www.wizardguy.in/2017";
+    SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         progressBar=(ProgressBar)findViewById(R.id.progress);
         webView = (WebView) findViewById(R.id.webpage);
-        webView.setWebViewClient(new myWebclient());
-        webView.getSettings().setAppCachePath( getApplicationContext().getCacheDir().getAbsolutePath() );
-        webView.getSettings().setAllowFileAccess( true );
-        webView.getSettings().setAppCacheEnabled( true );
-        webView.getSettings().setJavaScriptEnabled( true );
-            webView.getSettings().setCacheMode( WebSettings.LOAD_CACHE_ELSE_NETWORK );
-        webView.loadUrl(url);
+        swipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.swiperefresh);
 
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadurl();
+            }
+        });
+
+        loadurl();
+
+    }
+
+
+            public void loadurl()
+            {
+                webView.setWebViewClient(new myWebclient());
+                webView.getSettings().setAppCachePath( getApplicationContext().getCacheDir().getAbsolutePath() );
+                webView.getSettings().setAllowFileAccess( true );
+                webView.getSettings().setAppCacheEnabled( true );
+                webView.getSettings().setJavaScriptEnabled( true );
+                swipeRefreshLayout.setRefreshing(true);
+                webView.getSettings().setCacheMode( WebSettings.LOAD_CACHE_ELSE_NETWORK );
+                webView.loadUrl(url);
             }
 
 
@@ -38,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
                 public void onPageFinished(WebView view, String url) {
                     super.onPageFinished(view, url);
                     progressBar.setVisibility(View.INVISIBLE);
+                    swipeRefreshLayout.setRefreshing(false);
+
                 }
 
                 @Override
